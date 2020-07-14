@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" >
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" >
+		<meta name="author" content="Kroj Luca" >
+		
+		<title>Prenotazione visita ambulatoriale</title>
+
+        <h1 style="text-align:center">Prenotazione visita</h1>
+		
+		<script src="../vendor/jquery/jquery-3.4.1.js"></script>
+		<link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../vendor/jquery-ui-1.12.1.custom/jquery-ui.css">
+        <script src="../vendor/jquery/jquery.min.js"></script>
+        <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+        <script type="application/javascript">
+
+            //attendo che sia caricata la pagina
+            $(document).ready(function(){
+
+
+                function clearForm(){
+                    $("#txtCFPaziente").val("");
+                    $("#txtTipoVisita").val("");
+                    $("#txtOrario").val("");
+
+                }
+
+
+                function caricaTabella(){
+                    //definiamo il link del file della chiamata per la lettura del db
+                    var link = "controlloCalendario.php"
+                    //vettore che contiene il calendario
+                    var calendario;
+
+                    //facciamo la chiamata sul link, passando il link e la relativa funzione contenente i dati ricevuti
+                    $.get(link, function(data, status){
+                        //stampo il json
+                        console.log(data);
+
+                        //parsifichiamo il json
+                        calendario = JSON.parse(data);
+
+                        //controllo sul json
+                        if(calendario.length == 0){
+                            //stampo che è vuoto
+                            $("#tblcalendario").html("<tr><td>Calendario prenotazioni vuoto</td></tr>");
+                        }else{
+                            //inserisco nella tabella i dati
+                            $("#tblcalendario").html("<tr><th>Codice Visita</th><th>tipologia visita</th><th>Orario</th><th>Informazioni paziente</th></tr>");
+                            //ciclo for che scorre tutti i prodotti
+                            for(contvisite = 0; contvisite < calendario.length; contvisite++){
+                                //dichiaro la riga
+                                var tr = $("<tr></tr>");
+                                //dichiaro le colonne
+                                var CodVisita = calendario[contvisite].CodiceVisita;
+                                var TipoVisita = calendario[contvisite].TipologiaVisita;
+                                var Orario = calendario[contvisite].Orario;
+                                //appendo sulla riga
+                                tr.append($("<td>" + CodVisita + "</td><td>" + TipoVisita + "</td><td>" + Orario + "</td><td><button class = \"btn btn-primary btn-lg\" data-toggle = \"modal\" data-target=\"#myModal\" id=\"" + CodVisita + "\" onclick=\"functionMostra(this);\">Mostra</button></td>"));
+
+                                //append sulla tabella
+                                $("#tblcalendario").append(tr);
+                            }
+                        }
+                    });
+                }
+                
+                caricaTabella();
+
+                $("#btnCercaPrenotazionePersona").click(function(){
+                    //parametri
+                    var parametri = "txtCFPaziente=" + $("#txtCFPaziente").val() + "&txtTipoVisita=" + $("#txtTipoVisita").val();
+                    link = "./cercaPrenotazionePersona.php?" + parametri;
+                    console.log(link);
+                    $.get(link, function(data, status){
+                        console.log(data);
+
+                        //parsifichiamo il json
+                        calendario = JSON.parse(data);
+
+                        //controllo sul json
+                        if(calendario.length == 0){
+                            //stampo che è vuoto
+                            $("#tblcalendario").html("<tr><td>Non esistono prenotazioni di " + $("#txtTipoVisita").val() + " a suo nome</td></tr>");
+                        }else{
+                            //inserisco nella tabella i dati
+                            $("#tblcalendario").html("<tr><th>Codice fiscale</th><th>tipologia visita</th><th>Orario</th><th>Giorno</th><th>Mese</th><th>Anno</th></tr>");
+                            //ciclo for che scorre tutti i prodotti
+                            for(contvisite = 0; contvisite < calendario.length; contvisite++){
+                                //dichiaro la riga
+                                var tr = $("<tr></tr>");
+                                //dichiaro le colonne
+                                var CFPaziente = calendario[contvisite].CFPaziente;
+                                var TipoVisita = calendario[contvisite].TipologiaVisita;
+                                var Orario = calendario[contvisite].Orario;
+                                var Giorno = calendario[contvisite].Giorno;
+                                var Mese = calendario[contvisite].Mese;
+                                var Anno = calendario[contvisite].Anno;
+
+                                //appendo sulla riga
+                                tr.append($("<td>" + CFPaziente + "</td><td>" + TipoVisita + "</td><td>" + Orario +"</td><td>" + Giorno +"</td><td>" + Mese +"</td><td>" + Anno +"</td>"));
+
+                                //append sulla tabella
+                                $("#tblcalendario").append(tr);
+                            }
+                        }
+                        clearForm();                    
+                        });
+                });
+
+
+                $("#btnCercaPersona").click(function(){
+                    //parametri
+                    var parametri = "txtCFPaziente=" + $("#txtCFPaziente").val();
+                    link = "./cercaPersona.php?" + parametri;
+                    console.log(link);
+                    $.get(link, function(data, status){
+                        console.log(data);
+
+                        //parsifichiamo il json
+                        calendario = JSON.parse(data);
+
+                        //controllo sul json
+                        if(calendario.length == 0){
+                            //stampo che è vuoto
+                            $("#tblcalendario").html("<tr><td>Calendario prenotazioni vuoto</td></tr>");
+                        }else{
+                            //inserisco nella tabella i dati
+                            $("#tblcalendario").html("<tr><th>Codice Visita</th><th>tipologia visita</th><th>Orario</th><th>Informazioni paziente</th></tr>");
+                            //ciclo for che scorre tutti i prodotti
+                            for(contvisite = 0; contvisite < calendario.length; contvisite++){
+                                //dichiaro la riga
+                                var tr = $("<tr></tr>");
+                                //dichiaro le colonne
+                                var CodVisita = calendario[contvisite].CodiceVisita;
+                                var TipoVisita = calendario[contvisite].TipologiaVisita;
+                                var Orario = calendario[contvisite].Orario;
+                                //appendo sulla riga
+                                tr.append($("<td>" + CodVisita + "</td><td>" + TipoVisita + "</td><td>" + Orario + "</td><td><button class = \"btn btn-primary btn-lg\" data-toggle = \"modal\" data-target=\"#myModal\" id=\"" + CodVisita + "\" onclick=\"functionMostra(this);\">Mostra</button></td>"));
+
+                                //append sulla tabella
+                                $("#tblcalendario").append(tr);
+                            }
+                        }
+                        clearForm();                    
+                        });
+                });
+
+                $("#btnDisdici").click(function(){
+                    //scrivo i parametri
+                    var parametri = "txtCFPaziente=" + $("#txtCFPaziente").val() + "&txtTipoVisita=" + $("#txtTipoVisita").val();
+                    link = "./disdettaPrenotazione.php?" + parametri;
+                    console.log(link);
+
+
+                    //se data odierna + 3 > data prenotazione allora posso disdire
+                    $.get(link, function(data, status){
+                        caricaTabella();
+                        clearForm();
+                    });
+                });
+
+                $("#btnRicarica").click(function(){
+                   caricaTabella();
+                });
+
+
+                $("#btnPrenota").click(function(){
+                    //scrivo i parametri dell'url
+                    var parametri = "txtTipoVisita=" + $("#txtTipoVisita").val() +
+                                    "&txtOrario=" + $("#txtOrario").val();
+                    var linkPrenotazione = "./aggiungiPrenotazione.php?" + parametri;
+                    console.log(linkPrenotazione);
+
+                    
+
+                    $.get(linkPrenotazione, function(data, status){
+
+                        console.log(data);
+                        if(data.lenght == 0){
+                            
+                        }
+                        caricaTabella();
+                        clearForm();
+
+                    });
+
+                    linkAggiungi = "./aggiungiCodice.php";
+                    var Codice;
+                    $.get(linkAggiungi, function(data, status){
+                        console.log(data);
+                        codice = JSON.parse(data);
+
+                        var dati = "txtCFPaziente=" + $("#txtCFPaziente").val() +
+                                   "&inCognome=" + $("#inCognome").val() + 
+                                   "&inNome=" + $("#inNome").val() +
+                                    "&inComuneNascita=" + $("#inComuneNascita").val() +
+                                    "&inProvincia=" + $("#inProvincia").val() +
+                                    "&inDataNascita=" + $("#inDataNascita").val() +
+                                    "&inSesso=" + $("#inSesso").val() +
+                                    "&CodiceVisita=" + codice[0].CodiceVisita;
+                            var linkDati = "./aggiungiDati.php?" + dati;
+                            console.log(linkDati);
+
+                            
+                        $.get(linkDati, function(data, status){
+
+                            caricaTabella();
+                            clearForm();
+                        
+                        });
+                    });
+                    
+
+
+
+                });
+
+            });
+
+            function functionMostra(button) {
+                    console.log(button.id);
+                    var CodiceVisita = button.id;
+                    var parametri = "CodiceVisita=" + CodiceVisita;
+                    var link = "./pazienti.php?" + parametri;
+                    //vettore che contiene il calendario
+                    var pazienti;
+
+                    //facciamo la chiamata sul link, passando il link e la relativa funzione contenente i dati ricevuti
+                    $.get(link, function(data, status){
+                        //stampo il json
+                        console.log(data);
+
+                        //parsifichiamo il json
+                        pazienti = JSON.parse(data);
+
+                        //controllo sul json
+                        if(pazienti.length == 0){
+                            //stampo che è vuoto
+                            console.log("pazienti e' vuoto")
+                        }else{
+                            $("#popCF").text(pazienti[0].CFPaziente);
+                            $("#popNome").text(pazienti[0].nome);
+                            $("#popCognome").text(pazienti[0].cognome);
+                            $("#popComune").text(pazienti[0].luogoNascita);
+                            $("#popProvincia").text(pazienti[0].provincia);
+                            $("#popData").text(pazienti[0].dataNascita);
+                            $("#popSesso").text(pazienti[0].sesso);
+                        }
+                        
+                    });
+            }
+            
+        
+        
+        </script>
+</head>
+<body>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-8">
+
+               
+                <table id="tblcalendario" class="table table-hover">
+
+
+                </table>
+
+                <div class = "modal fade" id = "myModal" tabindex = "-1" role = "dialog" 
+                   aria-labelledby = "myModalLabel" aria-hidden = "true">
+   
+                <div class = "modal-dialog">
+                  <div class = "modal-content">
+         
+                     <div class = "modal-header">
+            
+                        <h4 class = "modal-title" id = "myModalLabel">
+                           <b>Informazione sul paziente</b>
+                        </h4>
+                     </div>
+         
+                     <div class = "modal-body">
+                        <p>Codice Fiscale: <span id="popCF"></span></p>
+                        <p>Nome: <span id="popNome"></span></p>
+                        <p>Cognome: <span id="popCognome"></span></p>
+                        <p>Comune di nascita: <span id="popComune"></span></p>
+                        <p>Provincia: <span id="popProvincia"></span></p>
+                        <p>Data di nascita: <span id="popData"></span></p>
+                        <p>Sesso: <span id="popSesso"></span></p>
+                     </div>
+         
+                     <div class = "modal-footer">
+                        <button type = "button" class = "btn btn-default" data-dismiss = "modal">
+                           Chiudi
+                        </button>
+                     </div>
+         
+                  </div><!-- /.modal-content -->
+               </div><!-- /.modal-dialog -->
+  
+            </div>
+
+                <form name="formPrenotazione" id="formPrenotazione">
+
+                    Codice fiscale:
+                    <div class="form-group input-group">
+                        <input type="text" id="txtCFPaziente" class="form-control" placeholder="KRJLCU00R01D205C">
+                    </div>
+
+                    <form name="formCodiceFiscale" id="formCodiceFiscale">
+                        Cognome:
+                        <input type="text" class="form-control" name="inCognome" id="inCognome" placeholder="Kroj">
+                        <br>
+                        Nome:
+                        <input type="text" class="form-control" name="inNome" id="inNome" placeholder="Luca">
+                        <br>
+                        Comune di nascita:
+                        <input type="text" class="form-control" name="inComuneNascita" id="inComuneNascita" placeholder="Cuneo">
+                        <br>
+                        Provincia di nascita:
+                        <input type="text" class="form-control" name="inProvincia" id="inProvincia" placeholder="CN">
+                        <br>
+                        Data di nascita:
+                        <input type='date' class="form-control" name="inDataNascita" id="inDataNascita" min='1899-01-01' max='2020-06-30'>
+                        <script>
+                        var today = new Date();
+                        var dd = today.getDate();
+                        var mm = today.getMonth()+1;
+                        var yyyy = today.getFullYear();
+                         if(dd<10){
+                                dd='0'+dd
+                            } 
+                            if(mm<10){
+                                mm='0'+mm
+                            } 
+
+                        today = yyyy+'-'+mm+'-'+dd;
+                        document.getElementById("inDataNascita").setAttribute("max", today);
+                        </script>
+                        <br>
+                        Sesso:<br>
+                        <label for="Maschio">Maschio</label>
+                        <input type="radio" name="inSesso" id="inSesso" value="M">
+                        <label for="Maschio">Femmina</label>
+                        <input type="radio" name="inSesso" id="inSesso" value="F">
+                        
+
+                    </form>
+                    <br>
+                    Tipo della visita:
+                    <div class="form-group input-group">
+                        <input type="text" id="txtTipoVisita" class="form-control" placeholder="chigom">
+                    </div>
+    
+                    Orario visita:
+                    <div class="form-group input-group">
+                        <input type="datetime-local" id="txtOrario" class="form-control" placeholder="2020-06-12 10:00:00">
+                    </div>
+
+                    Codice visita <b>*solo in caso si cerchi un visita*</b>:
+                    <div class="form-group input-group">
+                        <input type="text" id="txtCodiceVisita" class="form-control" placeholder="1">
+                    </div>      
+
+
+
+
+
+                    <div class="form-group input-group">
+                        <input type="button" id="btnPrenota" class="btn btn-secondary form-control" value="Prenota">
+                    </div>
+
+                    <div class="form-group input-group">
+                        <input type="button" id="btnDisdici" class="btn btn-secondary form-control" value="Disdici prenotazione">
+                    </div>
+
+                    <div class="form-group input-group">
+                        <input type="button" id="btnCercaPersona" class="btn btn-secondary form-control" value="Cerca persona">
+                    </div>
+
+                    <div class="form-group input-group">
+                        <input type="button" id="btnCercaPrenotazioneCodiceVisita" class="btn btn-secondary form-control" value="Cerca prenotazione per codice visita">
+                    </div>
+
+                    <div class="form-group input-group">
+                        <input type="button" id="btnRicarica" class="btn btn-secondary form-control" value="Ricarica pagina">
+                    </div>
+
+                    <div class="col-sm-2">
+                    </div>
+    
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
